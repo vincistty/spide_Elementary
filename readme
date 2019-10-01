@@ -1,0 +1,80 @@
+1.程序結構
+
+| ----app.py # 入口啟動腳本 [執行抓取、保存、解析及存入數據表的任務]
+| ----models #模型包 [存放模型]
+| --------models.py #模型模塊[存放模板信息模型]
+| --------configs.py #數據庫連接配置
+| ----catch #爬蟲包[單進程抓取模塊、多進程抓取模塊]
+| --------spider_single.py #單進程抓取模塊
+| --------spider_mutil.py #多進程抓取模塊
+| --------single_mutil.py #單進程與多進程對比
+| ----pick #提取保存包[存取提取保存的模塊]
+| --------pick_save.py #提取保存模塊
+| ----result #存放抓取數據的目錄
+| --------bs_theme #存放指定網站數據的目錄
+
+2.設計數據表
+2-1.確定數據庫名稱
+       #如果不存在則創建
+       create database if not exists spider;
+       #如果存在則刪除
+       drop database if exists spider;
+       #切換到爬蟲數據庫中
+       use spider;
+2-2.確定數據表
+    分析字段:
+        1.編號, id, 大整型(bigint), 主鍵(auto_increment key)，自動遞增
+        2.標題, title, 字符串, 非空
+        3.封面, logo, 字符串, 非空
+        4.詳情地址, url, 字符串, 非空
+        5.預覽地址, preview, 字符串, 非空
+        6.分類, cate, 字符串, 非空
+        7.價格, price, 浮點型, 非空
+        8.保存時間, createdAt, 日期時間, 非空
+        9.修改時間, updatedAt, 日期時間, 非空
+
+                           +----------------+                   +----------------+
+        Field-->           |       id       |                   |     title      |
+                           +----------------+                   +----------------+
+        Type-->            |   bigiint(20)  |                   |  varchar(255)  |
+                           +----------------+                   +----------------+
+        Null-->            |       NO       |                   |       NO       |
+                           +----------------+                   +----------------+
+        Key-->             |       PRI      |                   |                |
+                           +----------------+                   +----------------+      。。。。
+        Default-->         |      NULL      |                   |      NULL      |
+                           +----------------+                   +----------------+
+        Extra-->           | auto_increment |                   |                |
+                           +----------------+                   +----------------+
+        Index-->           |                |                   |                |
+                           +----------------+                   +----------------+
+
+
+2-2.通過mysql原生語法設計
+        #如果不存在則創建
+        create table if not exists bs_theme_product(
+            id bigint auto_increment key comment "編號",
+            title varchar(255) not null comment "標題",
+            logo varchar(255) not null comment "封面",
+            url varchar(255) not null comment "詳情網址",
+            preview varchar(255) not null comment "預覽網址",
+            cate varchar(100) not null comment "分類",
+            price decimal(6,2) not null comment "價格",
+            createdAt datetime not null comment "保存時間",
+            updatedAt datetime not null comment "修改時間"
+        )engine=InnoDB charset=utf8 comment "bootstrap主題產品表";
+2-3.通過python sqlalchemy orm對象關係映射模型設計
+        見models/models.py代碼
+
+3.編寫單進程爬蟲
+    3-1.定義請求的生成器
+    3-2.判斷保存目錄是否存在，不存在則創建
+    3-3.迭代生成器，要把響應的信息保存到html文件中，並將html文件保存至保存目錄中
+
+4.編寫多進程爬蟲
+    4-1.怎麼使用多進程
+    4-2.使用多進程編寫爬蟲
+
+5.提取html節點的內容
+    5-1.怎麼使用lxml
+    5-2.怎麼使用lxml提取result/bs_theme_product
